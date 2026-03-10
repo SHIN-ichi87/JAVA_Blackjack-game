@@ -1,0 +1,148 @@
+package strategy;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.*;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import cardgame.Card;
+import cardgame.Card.RANK;
+import cardgame.Card.SUIT;
+import cardgame.CardGame;
+import cardgame.Table;
+import cardgame.blackjack.BlackJackPlayer;
+import cardgame.blackjack.ExtendedBlackJackPlayer;
+import cardgame.blackjack.gui.UITable;
+
+/**
+ * OriginalStrategy の単体テスト（網羅テスト）
+ * A が 1 の時
+ */
+public class OriginalIsHitA1Test {
+
+	static Table table;
+	static BlackJackPlayer player;
+	RANK[] ranks = Card.getRanks();		// カードランクの集合 ACE("A"),...,KING("K")
+	boolean expected;	// Hit(true) or Stand(false) 期待値
+
+	@BeforeClass					// TableとPlayerの準備として1回だけ実行する
+	public static void setUp() {
+		table = new UITable();
+		CardGame.setTable(table);
+		table.setupTable(); 	// Tableの準備
+		player = new ExtendedBlackJackPlayer();
+		player.setupPlayer(1);	// 座席番号1のPlayerの準備
+	}
+
+	@Test
+	public void  Aを1と数えた時のchoiceテスト01() {
+		
+		// テスト条件: cardTotal >= 17
+		// Playerの手札: 10, {6,...,10}, A: stand
+		expected = false;
+		for (int i = 5; i < 10; i++){
+			table.putCard(new Card(RANK.TEN, SUIT.Spade), 1);
+			table.putCard(new Card(ranks[i], SUIT.Diamond), 1);
+			table.putCard(new Card(RANK.ACE, SUIT.Club), 1);
+			player.isGettingHit();
+			assertThat(player.getChoice(),is(expected));
+			table.clearObject();
+		}
+	}
+
+	@Test
+	public void  Aを1と数えた時のchoiceテスト02() {
+		
+		// テスト条件: 13<=cardTotal <= 16 && dealerFaceUpCard >= 2 && dealerFaceUpCard <= 7
+		
+		for (int i = 6; i < 10; i++){
+			
+			// Dealerの手札: 2,..,7: stand
+			expected = false;	
+			for (int k = 1; k < 6; k++){
+				table.putCard(new Card(RANK.FIVE, SUIT.Diamond), 1);
+				table.putCard(new Card(ranks[i], SUIT.Heart), 1);
+				table.putCard(new Card(RANK.ACE, SUIT.Club), 1);
+				table.putCard(new Card(ranks[k], SUIT.Spade), 0);		
+				player.isGettingHit();
+				assertThat(player.getChoice(),is(expected));
+				table.clearObject();
+			}
+			
+			// Dealerの手札: 8,..,10: hit
+			expected = true;		
+			for (int k = 7; k < 10; k++){
+				table.putCard(new Card(RANK.FIVE, SUIT.Diamond), 1);
+				table.putCard(new Card(ranks[i], SUIT.Heart), 1);
+				table.putCard(new Card(RANK.ACE, SUIT.Club), 1);
+				table.putCard(new Card(ranks[k], SUIT.Spade), 0);		
+				player.isGettingHit();
+				assertThat(player.getChoice(),is(expected));
+				table.clearObject();
+			}
+
+			// Dealerの手札: A: hit
+			expected = true;		
+			table.putCard(new Card(RANK.FIVE, SUIT.Diamond), 1);
+			table.putCard(new Card(ranks[i], SUIT.Heart), 1);
+			table.putCard(new Card(RANK.ACE, SUIT.Club), 1);
+			table.putCard(new Card(RANK.ACE, SUIT.Spade), 0);		
+			player.isGettingHit();
+			assertThat(player.getChoice(),is(expected));
+			table.clearObject();
+		}
+	}
+
+	@Test
+	public void  Aを1と数えた時のchoiceテスト03() {
+
+		// テスト条件: cardTotal =11, 12 && dealerFaceUpCard >= 2 && dealerFaceUpCard <= 4
+		// Playerの手札: 5, {6,7}
+		for(int i = 5; i < 7; i++){
+			// Dealerの手札: 2..4: stand
+			expected = false;	
+			for (int k = 1; k < 4; k++){
+				table.putCard(new Card(RANK.FIVE, SUIT.Diamond), 1);
+				table.putCard(new Card(ranks[i], SUIT.Heart), 1);
+				table.putCard(new Card(ranks[k], SUIT.Spade), 0);		
+				player.isGettingHit();
+				assertThat(player.getChoice(),is(expected));
+				table.clearObject();
+			}
+			// Dealerの手札: 5..: hit
+			expected = true;	
+			for (int k = 4; k < 10; k++){
+				table.putCard(new Card(RANK.FIVE, SUIT.Diamond), 1);
+				table.putCard(new Card(ranks[i], SUIT.Heart), 1);
+				table.putCard(new Card(ranks[k], SUIT.Spade), 0);		
+				player.isGettingHit();
+				assertThat(player.getChoice(),is(expected));
+				table.clearObject();
+			}
+
+			// Dealerの手札: A: hit
+			expected = true;		
+			table.putCard(new Card(RANK.FIVE, SUIT.Diamond), 1);
+			table.putCard(new Card(ranks[i], SUIT.Heart), 1);
+			table.putCard(new Card(RANK.ACE, SUIT.Spade), 0);		
+			player.isGettingHit();
+			assertThat(player.getChoice(),is(expected));
+			table.clearObject();
+		}
+	}
+	@Test
+	public void  Aを1と数えた時のchoiceテスト04() {
+
+		// テスト条件: cardTotal <= 10
+		expected = true;
+		for(int i = 1 ; i < 8; i++){
+			table.putCard(new Card(RANK.TWO, SUIT.Diamond), 1);
+			table.putCard(new Card(ranks[i], SUIT.Heart), 1);
+			player.isGettingHit();
+			assertThat(player.getChoice(), is(expected));
+			table.clearObject();
+		}
+	}	
+}

@@ -1,0 +1,42 @@
+package cardgame.blackjack.strategy;
+
+import cardgame.Hand;
+import cardgame.Player;
+import cardgame.blackjack.BlackJackRule;
+
+/**
+ * 弱気な戦略
+ * 
+ */
+public class BearStrategy implements Strategy, State {
+
+	@Override
+	public int decideBetChipsValue(Player player) {
+		int chipsValue = player.getChipsValue();
+
+		int betChips = chipsValue / 8;
+
+		if (betChips == 0 && chipsValue > 0) {
+			betChips = chipsValue;
+		}
+
+		return betChips;
+	}
+
+	@Override
+	public boolean isGettingHit(Player player) {
+		boolean isHit = false;
+		Hand hand = player.getTable().getHand(player.getSeatNumber());
+
+		if (BlackJackRule.totalHand(hand) < 15) {
+			isHit = true;
+		}
+
+		return isHit;
+	}
+
+	public void handleState(DynamicStrategy context, Player player) {
+		// do nothing
+	}
+
+}
